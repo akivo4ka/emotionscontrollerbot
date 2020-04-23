@@ -119,15 +119,15 @@ def main():
         json_data = json.load(json_file)
         print(json_data)
         token = json_data["TOKEN"]
-        host = json_data["PROXY"]["HOST"]
-        port = json_data["PROXY"]["PORT"]
-    request_kwargs = {
-        'proxy_url': 'socks5://{}:{}'.format(host, port),
-        'connect_timeout': 7,
-    }
+    #     host = json_data["PROXY"]["HOST"]
+    #     port = json_data["PROXY"]["PORT"]
+    # request_kwargs = {
+    #     'proxy_url': 'socks5://{}:{}'.format(host, port),
+    #     'connect_timeout': 7,
+    # }
     # Create the Updater and pass it your bot's token.
     pp = PicklePersistence(filename='emotionbot')
-    updater = Updater(token, persistence=pp, use_context=True, request_kwargs=request_kwargs)
+    updater = Updater(token, persistence=pp, use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
