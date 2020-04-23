@@ -91,13 +91,13 @@ def show_help(update, context):
         emotions_data = json.load(emotions_list_file)
         print(emotions_data)
         for x in emotions_data:
-            emotions += "\n*" + x + "*:\n"
+            emotions += "\n<b>" + x + "</b>:\n"
             for y in emotions_data[x]:
                 emotions += y + "\n"
-    update.message.reply_text("Тебе сложно определиться с тем, какие эмоции и чувства ты испытываешь? "
+    update.message.reply_text(text="Тебе сложно определиться с тем, какие эмоции и чувства ты испытываешь? "
                               "Держи список, который поможет тебе разобраться!"
                               "{}".format(emotions),
-                              parse_mode=ParseMode.MARKDOWN_V2)
+                              parse_mode=ParseMode.HTML)
 
 
 def done(update, context):
