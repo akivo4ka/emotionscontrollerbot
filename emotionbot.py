@@ -136,7 +136,7 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^(Страх|Грусть|Злость|Радость)$'),
+            CHOOSING: [MessageHandler(Filters.regex('^(СТРАХ|ГРУСТЬ|ЗЛОСТЬ|РАДОСТЬ)$'),
                                       regular_choice),
                        ],
 
