@@ -1,4 +1,5 @@
 from telegram import ReplyKeyboardMarkup
+from telegram import ParseMode
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler, PicklePersistence)
 
@@ -90,12 +91,13 @@ def show_help(update, context):
         emotions_data = json.load(emotions_list_file)
         print(emotions_data)
         for x in emotions_data:
-            emotions += "\n" + x + ":\n"
+            emotions += "\n*" + x + "*:\n"
             for y in emotions_data[x]:
                 emotions += y + "\n"
     update.message.reply_text("Тебе сложно определиться с тем, какие эмоции и чувства ты испытываешь? "
                               "Держи список, который поможет тебе разобраться!"
-                              "{}".format(emotions))
+                              "{}".format(emotions),
+                              parse_mode=ParseMode.MARKDOWN_V2)
 
 
 def done(update, context):
