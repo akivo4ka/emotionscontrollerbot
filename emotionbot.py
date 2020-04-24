@@ -17,6 +17,7 @@ CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
 
 reply_keyboard = [['СТРАХ', 'ПЕЧАЛЬ'],
                   ['ГНЕВ', 'РАДОСТЬ'],
+                  ['СТЫД', 'ВИНА'],
                   ['I AM DONE']]
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
@@ -68,13 +69,13 @@ def received_information(update, context):
         context.user_data[category] = [text]
     print(context.user_data[category])
     del context.user_data['choice']
-
-    list_nice_words = ["Всё будет хорошо, поверь мне.", "Помни, что ты не одинок.", "Ты молодец!", "Ты умница!",
-                       "У тебя всё получится!", "Ты просто класс!", "Ты всё сможешь!", "Ты справишься!", 
-                       "Ты молодчина!", "Ты огонь!", "Ты просто супер!"]
-    nice_words = list_nice_words[np.random.randint(0, list_nice_words.__len__())]
+    nice_words = "Всё нормас!"
+    with open("nice_words_data.json", encoding="utf-8") as nice_words_file:
+        nice_words_data = json.load(nice_words_file)
+        nice_words = nice_words_data[category]
+    nice_words = nice_words[np.random.randint(0, nice_words.__len__())]
     update.message.reply_text("Хорошо, я тебя услышал! {}".format(nice_words),
-                              reply_markup=markup)
+                              reply_markup=markup, parse_mode=ParseMode.HTML)
 
     return CHOOSING
 
@@ -134,11 +135,12 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     # Add conversation handler with the states CHOOSING, TYPING_CHOICE and TYPING_REPLY
+    regex_str = "|".join([x for l in reply_keyboard[:-1] for x in l])
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^(СТРАХ|ГРУСТЬ|ЗЛОСТЬ|РАДОСТЬ)$'),
+            CHOOSING: [MessageHandler(Filters.regex('^({})$'.format(regex_str)),
                                       regular_choice),
                        ],
 
