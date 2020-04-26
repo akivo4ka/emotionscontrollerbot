@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from telegram import ReplyKeyboardMarkup
 from telegram import ParseMode
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
