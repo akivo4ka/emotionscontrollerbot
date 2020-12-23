@@ -29,7 +29,9 @@ def facts_to_str(user_data):
     facts = list()
 
     for key, value in user_data.items():
-        facts.append('{}: \n{}'.format(key, '\n'.join(value)))
+        date = value[0].strftime("%Y-%m-%d %H:%M")
+        text = value[1]
+        facts.append('{}: \n{}\n{}'.format(key, date, text))
 
     return "\n".join(facts).join(['\n', '\n'])
 
@@ -80,12 +82,16 @@ def received_information(update, context):
     update.message.reply_text("Хорошо, я тебя услышал! {}".format(random.choice(nice_words)),
                               reply_markup=markup, parse_mode=ParseMode.HTML)
 
+    update.message.reply_text("А как ты себя чувствуешь сейчас?")
+
     return CHOOSING
 
 
 def show_data(update, context):
     update.message.reply_text("Вот что ты мне уже рассказал:"
                               "{}".format(facts_to_str(context.user_data)))
+
+    return CHOOSING
 
 
 def show_help(update, context):
@@ -130,7 +136,7 @@ def main():
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
     # Add conversation handler with the states CHOOSING, TYPING_CHOICE and TYPING_REPLY
-    regex_str = "|".join([x for l in reply_keyboard[:-1] for x in l])
+    regex_str = "|".join([x for l in reply_keyboard for x in l])
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('start', start)],
 
@@ -140,7 +146,7 @@ def main():
             TYPING_REPLY: [MessageHandler(Filters.text, received_information)],
         },
 
-        fallbacks=[CommandHandler('stop', stop)],
+        fallbacks=[MessageHandler(Filters.regex('^Done$'), stop)],
         name="my_conversation",
         persistent=True
     )
