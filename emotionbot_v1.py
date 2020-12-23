@@ -71,7 +71,6 @@ def received_information(update, context):
         context.user_data[category] = [text]
     print(context.user_data[category])
     del context.user_data['choice']
-    nice_words = "Всё нормас!"
     with open("nice_words_data.json", encoding="utf-8") as nice_words_file:
         nice_words_data = json.load(nice_words_file)
         nice_words = nice_words_data[category]
@@ -88,7 +87,6 @@ def show_data(update, context):
 
 
 def show_help(update, context):
-    emotions = "Упс, что-то пошло не так, список пуст."
     with open("emotions_data.json", encoding="utf-8") as emotions_list_file:
         emotions = ""
         emotions_data = json.load(emotions_list_file)
@@ -125,7 +123,7 @@ def main():
         # print(json_data)
         token = json_data["TOKEN"]
     # Create the Updater and pass it your bot's token.
-    pp = PicklePersistence(filename='emotionbot')
+    pp = PicklePersistence(filename='emotionbot.pb')
     updater = Updater(token, persistence=pp, use_context=True)
 
     # Get the dispatcher to register handlers
@@ -149,7 +147,7 @@ def main():
                            ],
         },
 
-        fallbacks=[MessageHandler(Filters.regex('^Done$'), done)],
+        fallbacks=[CommandHandler('stop', done)],
         name="my_conversation",
         persistent=True
     )

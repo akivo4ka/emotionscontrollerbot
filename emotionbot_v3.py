@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-from telegram import ReplyKeyboardMarkup
+import json
+import logging
+import random
+from datetime import datetime
+
 from telegram import ParseMode
+from telegram import ReplyKeyboardMarkup
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler, PicklePersistence)
-
-import logging
-import numpy as np
-import json
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -51,7 +52,8 @@ def regular_choice(update, context):
     if context.user_data.get(text):
         reply_text = 'Ты уже испытывал {}, вот твое описание этого: \n{}\n' \
                      'Расскажи, почему ты испытываешь это ' \
-                     'сейчас?'.format(text, "\n".join(context.user_data[text]))
+                     'сейчас?'.format(text, context.user_data[text])
+        print(context.user_data[text])
     else:
         reply_text = 'Ты испытываешь {}? Расскажи, почему?'.format(text)
     update.message.reply_text(reply_text)
@@ -65,18 +67,17 @@ def received_information(update, context):
     print(category)
     print(text)
     print(context.user_data)
+    data = [datetime.now(), text]
     if context.user_data.get(category):
-        context.user_data[category] += [text]
+        context.user_data[category] += data
     else:
-        context.user_data[category] = [text]
+        context.user_data[category] = data
     print(context.user_data[category])
     del context.user_data['choice']
-    nice_words = "Всё нормас!"
     with open("nice_words_data.json", encoding="utf-8") as nice_words_file:
         nice_words_data = json.load(nice_words_file)
         nice_words = nice_words_data[category]
-    nice_words = nice_words[np.random.randint(0, nice_words.__len__())]
-    update.message.reply_text("Хорошо, я тебя услышал! {}".format(nice_words),
+    update.message.reply_text("Хорошо, я тебя услышал! {}".format(random.choice(nice_words)),
                               reply_markup=markup, parse_mode=ParseMode.HTML)
 
     return CHOOSING
@@ -88,7 +89,6 @@ def show_data(update, context):
 
 
 def show_help(update, context):
-    emotions = "Упс, что-то пошло не так, список пуст."
     with open("emotions_data.json", encoding="utf-8") as emotions_list_file:
         emotions = ""
         emotions_data = json.load(emotions_list_file)
@@ -103,7 +103,7 @@ def show_help(update, context):
                               parse_mode=ParseMode.HTML)
 
 
-def done(update, context):
+def stop(update, context):
     if 'choice' in context.user_data:
         del context.user_data['choice']
 
@@ -122,10 +122,9 @@ def main():
     # Set up token and proxy
     with open("config.json") as json_file:
         json_data = json.load(json_file)
-        # print(json_data)
         token = json_data["TOKEN"]
     # Create the Updater and pass it your bot's token.
-    pp = PicklePersistence(filename='emotionbot')
+    pp = PicklePersistence(filename='emotionbot_v3')
     updater = Updater(token, persistence=pp, use_context=True)
 
     # Get the dispatcher to register handlers
@@ -136,20 +135,12 @@ def main():
         entry_points=[CommandHandler('start', start)],
 
         states={
-            CHOOSING: [MessageHandler(Filters.regex('^({})$'.format(regex_str)),
-                                      regular_choice),
-                       ],
-
-            TYPING_CHOICE: [MessageHandler(Filters.text,
-                                           regular_choice),
-                            ],
-
-            TYPING_REPLY: [MessageHandler(Filters.text,
-                                          received_information),
-                           ],
+            CHOOSING: [MessageHandler(Filters.regex('^({})$'.format(regex_str)), regular_choice)],
+            TYPING_CHOICE: [MessageHandler(Filters.text, regular_choice)],
+            TYPING_REPLY: [MessageHandler(Filters.text, received_information)],
         },
 
-        fallbacks=[MessageHandler(Filters.regex('^Done$'), done)],
+        fallbacks=[CommandHandler('stop', stop)],
         name="my_conversation",
         persistent=True
     )
